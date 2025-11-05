@@ -1,0 +1,139 @@
+{
+	"info": {
+		"name": "N8N Integration API",
+		"description": "Collection for testing the N8N integration endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/health",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "health"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test Connection",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/test",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "test"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Webhook (No API Key)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"message\": \"Test message from Postman\",\n  \"data\": {\n    \"testField\": \"testValue\",\n    \"timestamp\": \"2023-12-07T10:30:00\"\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/trigger",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "trigger"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Webhook (With API Key)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-API-Key",
+						"value": "your-api-key-here"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"message\": \"Authenticated test message\",\n  \"data\": {\n    \"authenticated\": true,\n    \"userId\": 12345\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/trigger",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "trigger"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Webhook (Invalid Data)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\",\n  \"email\": \"invalid-email\",\n  \"message\": \"This should fail validation\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/trigger",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "trigger"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger Webhook (Complex Data)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Alice Johnson\",\n  \"email\": \"alice@company.com\",\n  \"message\": \"Complex data test\",\n  \"data\": {\n    \"user\": {\n      \"id\": 456,\n      \"role\": \"admin\",\n      \"permissions\": [\"read\", \"write\", \"delete\"]\n    },\n    \"metadata\": {\n      \"source\": \"web-form\",\n      \"campaign\": \"spring-promotion\",\n      \"tags\": [\"vip\", \"enterprise\"]\n    },\n    \"preferences\": {\n      \"newsletter\": true,\n      \"notifications\": false\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/n8n/trigger",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["api", "n8n", "trigger"]
+				}
+			},
+			"response": []
+		}
+	]
+}

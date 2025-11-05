@@ -1,0 +1,170 @@
+{
+  "name": "AI Chat Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-ai",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Chat Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "chat-ai"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract chat data from Spring Boot request\nconst chatData = $input.first().json.chat;\nconst metadata = $input.first().json.metadata;\n\n// Prepare context for AI\nconst userMessage = chatData.message;\nconst conversationId = chatData.conversationId;\nconst messageHistory = chatData.messageHistory || [];\n\n// Build conversation context for AI\nlet conversationContext = [];\n\n// Add system prompt\nconversationContext.push({\n  role: \"system\",\n  content: \"You are a helpful AI assistant integrated with an n8n workflow system. You can help users with questions about data processing, automation, and general assistance. Be concise but informative.\"\n});\n\n// Add recent message history for context\nif (messageHistory.length > 0) {\n  messageHistory.forEach(msg => {\n    conversationContext.push({\n      role: msg.role,\n      content: msg.content\n    });\n  });\n}\n\n// Add current user message\nconversationContext.push({\n  role: \"user\",\n  content: userMessage\n});\n\nreturn {\n  messages: conversationContext,\n  conversationId: conversationId,\n  userMessage: userMessage,\n  requestMetadata: metadata\n};"
+      },
+      "id": "process-context",
+      "name": "Process Chat Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-3.5-turbo",
+        "messages": {
+          "messageUi": {
+            "values": [
+              {
+                "message": "={{ $json.messages }}"
+              }
+            ]
+          }
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 500
+        }
+      },
+      "id": "openai-chat",
+      "name": "OpenAI Chat",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "your-openai-credentials-id",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process AI response and format for Spring Boot\nconst aiResponse = $input.first().json;\nconst conversationId = $input.first().json.conversationId;\n\n// Extract the AI message content\nlet responseText = \"I'm sorry, I couldn't process your request.\";\n\nif (aiResponse.choices && aiResponse.choices.length > 0) {\n  responseText = aiResponse.choices[0].message.content;\n} else if (aiResponse.text) {\n  responseText = aiResponse.text;\n} else if (aiResponse.content) {\n  responseText = aiResponse.content;\n}\n\n// Format response for Spring Boot ChatService\nreturn {\n  success: true,\n  response: responseText,\n  conversationId: conversationId,\n  timestamp: new Date().toISOString(),\n  metadata: {\n    model: \"gpt-3.5-turbo\",\n    provider: \"openai\",\n    processed_at: new Date().toISOString(),\n    tokens_used: aiResponse.usage ? aiResponse.usage.total_tokens : null\n  }\n};"
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "webhook-response",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Error handling for chat failures\nconst error = $input.first().json;\n\nreturn {\n  success: false,\n  response: \"I'm experiencing some technical difficulties. Please try again in a moment.\",\n  error: {\n    message: error.message || \"Unknown error\",\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 460],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Chat Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Chat Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Chat Context": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Return Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Return Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "chat",
+      "name": "chat"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "ai",
+      "name": "ai"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-15T10:00:00.000Z",
+  "versionId": "1"
+}
+
+
