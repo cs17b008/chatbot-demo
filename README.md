@@ -47,25 +47,25 @@ A modern, enterprise-grade React TypeScript frontend that seamlessly integrates 
 
 ## 🏗️ System Architecture
 
-```mermaid
 graph TB
-    A[React Frontend<br/>:3000] --> B[Spring Boot API<br/>:8080]
-    B --> C[n8n Workflows<br/>:5678]
-    C --> D[External APIs]
-    C --> E[Database]
-    C --> F[Email Services]
+
+    A["React Frontend :3000"] --> B["Spring Boot API :8080"]
+    B --> C["n8n Workflows :5678"]
+    C --> D["External APIs"]
+    C --> E["Database"]
+    C --> F["Email Services"]
     
     subgraph "Frontend Components"
-        G[ChatBot]
-        H[WebhookForm]
-        I[StatusDashboard]
+        G["ChatBot"]
+        H["WebhookForm"]
+        I["StatusDashboard"]
     end
     
     subgraph "API Endpoints"
-        J[/api/n8n/health]
-        K[/api/n8n/trigger]
-        L[/api/n8n/chat]
-        M[/api/n8n/test]
+        J["/api/n8n/health"]
+        K["/api/n8n/trigger"]
+        L["/api/n8n/chat"]
+        M["/api/n8n/test"]
     end
     
     A --> G
@@ -75,7 +75,7 @@ graph TB
     B --> K
     B --> L
     B --> M
-```
+
 
 ### Data Flow
 1. **User Interaction** → React Frontend captures user input
