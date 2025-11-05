@@ -1,4 +1,5 @@
-# 🚀 N8N Integration Prototype Frontend
+# 🚀 N8N Integration Prototype including chatbot development
+
 
 A modern, enterprise-grade React TypeScript frontend that seamlessly integrates with Spring Boot API and n8n workflows, featuring an intelligent AI chatbot and real-time webhook processing.
 
